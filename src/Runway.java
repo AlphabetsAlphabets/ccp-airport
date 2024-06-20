@@ -9,8 +9,8 @@ public class Runway {
     }
 
     public void free() {
-            System.out.println("Runway freed.");
-            this.occupied = false;
+        System.out.println("Runway freed.");
+        this.occupied = false;
     }
 
     public synchronized boolean is_occupied() {
