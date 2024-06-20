@@ -14,7 +14,6 @@ public class Gate {
 
     public void free() {
         this.occupied = false;
-
     }
 
     public synchronized boolean is_occupied() {

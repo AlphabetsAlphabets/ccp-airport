@@ -17,7 +17,9 @@ public class Tower {
     }
 
     public void land(int plane_id) {
-        System.out.println(plane_id + " requesting to land.");
+        String plane_info = "(" + plane_id + ") ";
+        System.out.println(plane_info + "Landing request.");
+
         try {
             lock.lock();
             int unoccupied_gate = this.find_unoccupied_gate();
@@ -25,16 +27,29 @@ public class Tower {
             boolean can_land = unoccupied_gate != -1 && !occupied_runway;
 
             if (!can_land) {
-                System.out.println("(" + plane_id + ") Cannot land. Reason.");
+                System.out.println(plane_info + "Cannot land. Reason:");
                 String gate_status = (unoccupied_gate == -1) ? "No. All gates occupied." : "Yes. There is at least one free gate.";
-                System.out.println("(" + plane_id + ") Is there a free gate? " + gate_status);
-
-                System.out.println("(" + plane_id + ") Is runway occupied? " + occupied_runway);
+                System.out.println(plane_info + "Is there a free gate? " + gate_status);
+                System.out.println(plane_info + "Is runway occupied? " + occupied_runway);
                 return;
             }
 
+            System.out.println(plane_info + "landing on runway");
+            try {
+                Thread.sleep(1000); // landing takes time
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
             this.runway.occupy();
-            System.out.println("Plane " + plane_id + " coasting to gate " + unoccupied_gate);
+            System.out.println(plane_info + "Landed at runway successfully.");
+            System.out.println(plane_info + "coasting to gate " + unoccupied_gate);
+            
+            try {
+                Thread.sleep(1000); // Coasting to a gate takes time.
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
             for (var gate : gates) {
                 if (gate.get_id() == unoccupied_gate) {
@@ -54,7 +69,6 @@ public class Tower {
                 System.out.println("Unoccupied gate found.");
                 return gate.get_id();
             }
-
         }
 
         return -1;
