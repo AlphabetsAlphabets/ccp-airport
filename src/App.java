@@ -17,12 +17,12 @@ public class App {
         t_plane_one.start();
         t_plane_two.start();
         t_plane_three.start();        
-        // t_plane_four.start();
+        t_plane_four.start();
 
         t_plane_one.join();
         t_plane_two.join();
         t_plane_three.join();     
-        // t_plane_four.join();
+        t_plane_four.join();
         
         System.out.println("Finished");
     }
