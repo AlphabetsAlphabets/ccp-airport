@@ -18,16 +18,18 @@ public class Plane implements Runnable {
 
     @Override
     public void run() {
-        tower.land(this);
+        int gate_id = tower.land(this);
         tower.request_refuel(this);
         unload_passengers();
         load_passengers();
-        tower.depart(this);
+        tower.depart(this, gate_id);
     }
 
-    public void land(int gate_id) {
+    public int land(int gate_id) {
         this.land_at_runway();
         this.dock_at_gate(gate_id);
+
+        return gate_id;
     }
 
     private void unload_passengers() {

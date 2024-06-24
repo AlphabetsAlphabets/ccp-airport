@@ -9,7 +9,6 @@ public class Gate {
     public void occupy() {
         System.out.println("Gate " + this.id + " is now occupied.");
         this.occupied = true;
-
     }
 
     public void free() {

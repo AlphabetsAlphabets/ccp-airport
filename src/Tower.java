@@ -11,6 +11,9 @@ public class Tower {
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
     private Condition cannot_land = lock.newCondition();
+    
+    private Condition can_depart = lock.newCondition();
+    private Condition cannot_depart = lock.newCondition();
 
     Tower() {
         gates.add(new Gate(1));
@@ -21,15 +24,43 @@ public class Tower {
         refuelling_truck = new RefuellingTruck();
     }
 
-    public void depart(Plane plane) {
-        
+    public boolean depart(Plane plane, int gate_id) {
+        boolean can_depart = false;
+
+        try {
+            lock.lock();
+
+            while (!(can_depart = plane_can_depart())) {
+                try {
+                    this.can_depart.await();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
+        } finally {
+            lock.unlock();
+        }
+
+        return can_depart;
+    }
+
+    private boolean plane_can_depart() {
+        boolean can_depart = !runway.is_occupied();
+        if (can_depart) {
+            this.cannot_depart.signal();
+        } else {
+            this.can_depart.signal();
+        }
+
+        return can_depart;
     }
 
     public void request_refuel(Plane plane) {
         refuelling_truck.fuel_plane(plane);
     }
 
-    public void land(Plane plane) {
+    public int land(Plane plane) {
         System.out.println(plane.id + "- Landing request.");
         int gate_id = -1;
 
@@ -47,6 +78,8 @@ public class Tower {
         } finally {
             lock.unlock();
         }
+
+        return gate_id;
     }
 
     /**
