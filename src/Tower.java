@@ -24,13 +24,11 @@ public class Tower {
         refuelling_truck = new RefuellingTruck();
     }
 
-    public boolean depart(Plane plane, int gate_id) {
-        boolean can_depart = false;
-
+    public void depart(Plane plane, int gate_id) {
         try {
             lock.lock();
-
-            while (!(can_depart = plane_can_depart())) {
+            // To depart only one condition is met: the runway must be unoccupied.
+            while (!plane_can_depart()) {
                 try {
                     this.can_depart.await();
                 } catch (InterruptedException e) {
@@ -38,19 +36,43 @@ public class Tower {
                     e.printStackTrace();
                 }
             }
+
+            for (var gate: gates) {
+                if (gate.occupied_by(plane.id)) {
+                    gate.free();
+                    break;
+                }
+            }
+
+            System.out.println(plane.id + " - Plane " + plane.id + " is departing.");
+            System.out.println(plane.id + " - is moving to the runway and is now departing.");
+            runway.occupy();
+            try {
+                Thread.sleep(2000); // simulate moving to runway and departing.
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            runway.free();
         } finally {
             lock.unlock();
         }
-
-        return can_depart;
     }
 
+    /**
+     * Checks if the runway is occupied. Sends the cannot_depart signal if it is.
+     * Sends the can_depart signal if it isn't.
+     * 
+     * This function is used in isolation specifically for plane depatures.
+     * @return can_depart (bool)
+     */
     private boolean plane_can_depart() {
         boolean can_depart = !runway.is_occupied();
         if (can_depart) {
-            this.cannot_depart.signal();
+            this.cannot_depart.signalAll();
         } else {
-            this.can_depart.signal();
+            this.can_depart.signalAll();
         }
 
         return can_depart;
@@ -82,20 +104,6 @@ public class Tower {
         return gate_id;
     }
 
-    /**
-     * Finds an unoccupied gate and returns its id.
-     * @return gate id (int)
-     */
-    private int find_unoccupied_gate() {
-        for (var gate : gates) {
-            if (!gate.is_occupied()) {
-                System.out.println("Unoccupied gate found.");
-                return gate.get_id();
-            }
-        }
-
-        return -1;
-    }
 
     /**
      * Checks if a plane can land.
@@ -114,4 +122,20 @@ public class Tower {
         cannot_land.signal();
         return -1;
     }
+
+    /**
+     * Finds an unoccupied gate and returns its id.
+     * @return gate id (int)
+     */
+    private int find_unoccupied_gate() {
+        for (var gate : gates) {
+            if (!gate.is_occupied()) {
+                System.out.println("Unoccupied gate found.");
+                return gate.get_id();
+            }
+        }
+
+        return -1;
+    }
+
 }

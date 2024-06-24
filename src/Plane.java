@@ -10,7 +10,8 @@ public class Plane implements Runnable {
     private Tower tower;
 
     Plane(int id, Tower tower) {
-        passengers  = new Random().nextInt(51);
+        passengers  = new Random().nextInt(1, 51);
+        
         max_passengers = passengers;
         this.id = id;
         this.tower = tower;
@@ -32,7 +33,7 @@ public class Plane implements Runnable {
         return gate_id;
     }
 
-    private void unload_passengers() {
+    private synchronized void unload_passengers() {
         System.out.println(this.id + " - Disembarking passengers...");
         for (int i = 0; max_passengers != 0; i++) {
             try {
@@ -47,9 +48,9 @@ public class Plane implements Runnable {
         System.out.println(this.id + " - Plane is now empty.");
     }
 
-    private void load_passengers() {
+    private synchronized void load_passengers() {
         System.out.println(this.id + " - Embarking passengers...");
-        passengers = new Random().nextInt(50);
+        passengers = new Random().nextInt(1, 51);
         for (int i = 0; i < passengers; i++) {
             try {
                 Thread.sleep(500); // simluating passengers embarking onto the plane.
@@ -84,7 +85,7 @@ public class Plane implements Runnable {
 
         for (var gate : tower.gates) {
             if (gate.get_id() == gate_id) {
-                gate.occupy();
+                gate.occupy(id);
             }
         }
 
