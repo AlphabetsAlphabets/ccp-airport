@@ -6,27 +6,32 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Tower {
     public ArrayList<Gate> gates = new ArrayList<>();
     public Runway runway;
+    public RefuellingTruck refuelling_truck;
 
     private Lock lock = new ReentrantLock();
-    private Condition can_land = this.lock.newCondition();
-    private Condition cannot_land = this.lock.newCondition();
+    private Condition can_land = lock.newCondition();
+    private Condition cannot_land = lock.newCondition();
 
     Tower() {
-        this.gates.add(new Gate(1));
-        this.gates.add(new Gate(2));
-        this.gates.add(new Gate(3));
+        gates.add(new Gate(1));
+        gates.add(new Gate(2));
+        gates.add(new Gate(3));
 
-        this.runway = new Runway();
+        runway = new Runway();
+        refuelling_truck = new RefuellingTruck();
+    }
+
+    public void request_refuel(Plane plane) {
+        refuelling_truck.fuel_plane(plane);
     }
 
     public void land(Plane plane) {
-        String plane_info = "(" + plane.id + ") ";
-        System.out.println(plane_info + "Landing request.");
+        System.out.println(plane.id + "- Landing request.");
         int gate_id = -1;
 
         try {
             lock.lock();
-            while ((gate_id = this.plane_can_land()) == -1) { // -1 means there are no free gates
+            while ((gate_id = plane_can_land()) == -1) { // -1 means there are no free gates
                 try {
                     can_land.await();
                 } catch (InterruptedException e) {
@@ -38,10 +43,6 @@ public class Tower {
         } finally {
             lock.unlock();
         }
-    }
-
-    public void request_refuel() {
-
     }
 
     /**

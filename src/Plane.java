@@ -1,5 +1,6 @@
 import java.util.Random;
 
+
 public class Plane implements Runnable {
     public int id;
     // 50 max passengers, range is 0 to 50
@@ -14,9 +15,12 @@ public class Plane implements Runnable {
 
     @Override
     public void run() {
-        this.tower.land(this);
-        this.disembark_then_embark_passengers();
+        tower.land(this);
+        disembark_then_embark_passengers();
+        tower.request_refuel(this);
+        
     }
+
 
     public void land(int gate_id) {
         this.land_at_runway();
@@ -71,7 +75,7 @@ public class Plane implements Runnable {
     private void dock_at_gate(int gate_id) {
         System.out.println(id + " - landed at runway successfully.");
         System.out.println(id + " - coasting to gate " + gate_id);
-        
+
         try {
             Thread.sleep(1000); // Coasting to a gate takes time.
         } catch (InterruptedException e) {

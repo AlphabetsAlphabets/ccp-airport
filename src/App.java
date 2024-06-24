@@ -4,7 +4,7 @@ public class App {
     public static void main(String[] args) throws Exception {
         Tower tower = new Tower();
         RefuellingTruck refuelling_truck = new RefuellingTruck();
-        Thread refuThread = new Thread(refuelling_truck);
+        // Thread refuThread = new Thread(refuelling_truck);
         
         Plane plane_one = new Plane(1, tower);
         Plane plane_two = new Plane(2, tower);
@@ -20,14 +20,14 @@ public class App {
 
         t_plane_one.start();
         t_plane_two.start();
-        t_plane_three.start();        
+        // t_plane_three.start();        
         // t_plane_four.start();
 
         // refuThread.start();
 
         t_plane_one.join();
         t_plane_two.join();
-        t_plane_three.join();     
+        // t_plane_three.join();     
         // t_plane_four.join();
 
         // refuThread.join();
