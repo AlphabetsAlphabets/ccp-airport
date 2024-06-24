@@ -3,7 +3,7 @@ public class Runway {
 
     Runway() {}
     
-    public synchronized void occupy() {
+    public void occupy() {
         System.out.println("Occupying runway.");
         this.occupied = true;
     }
@@ -13,7 +13,7 @@ public class Runway {
         this.occupied = false;
     }
 
-    public synchronized boolean is_occupied() {
+    public boolean is_occupied() {
         return this.occupied;
     }
 }

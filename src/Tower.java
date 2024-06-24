@@ -40,6 +40,10 @@ public class Tower {
         }
     }
 
+    public void request_refuel() {
+
+    }
+
     /**
      * Finds an unoccupied gate and returns its id.
      * @return gate id (int)
