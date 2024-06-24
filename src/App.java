@@ -1,9 +1,8 @@
 public class App {
-    // Currently, the program will enter a deadlock because there isn't a mechanism in place
-    // which makes the planes leave the gate.
+    public static volatile RefuellingTruck refuelling_truck = new RefuellingTruck();
+    
     public static void main(String[] args) throws Exception {
         Tower tower = new Tower();
-        RefuellingTruck refuelling_truck = new RefuellingTruck();
         // Thread refuThread = new Thread(refuelling_truck);
         
         Plane plane_one = new Plane(1, tower);

@@ -4,11 +4,14 @@ import java.util.Random;
 public class Plane implements Runnable {
     public int id;
     // 50 max passengers, range is 0 to 50
-    private int passengers = new Random().nextInt(51);
+    private int passengers;
+    private int max_passengers;
 
     private Tower tower;
 
     Plane(int id, Tower tower) {
+        passengers  = new Random().nextInt(51);
+        max_passengers = passengers;
         this.id = id;
         this.tower = tower;
     }
@@ -16,25 +19,20 @@ public class Plane implements Runnable {
     @Override
     public void run() {
         tower.land(this);
-        disembark_then_embark_passengers();
         tower.request_refuel(this);
-        
+        unload_passengers();
+        load_passengers();
+        tower.depart(this);
     }
-
 
     public void land(int gate_id) {
         this.land_at_runway();
         this.dock_at_gate(gate_id);
     }
 
-    public void disembark_then_embark_passengers() {
-        this.unload_passengers();
-        this.load_passengers();
-    }
-
-    private synchronized void unload_passengers() {
+    private void unload_passengers() {
         System.out.println(this.id + " - Disembarking passengers...");
-        for (int i = 0; i < passengers; i++) {
+        for (int i = 0; max_passengers != 0; i++) {
             try {
                 Thread.sleep(500); // simulating passengers leaving the plane.
             } catch (InterruptedException e) {
@@ -42,12 +40,12 @@ public class Plane implements Runnable {
                 e.printStackTrace();
             }
 
-            passengers--;
+            max_passengers--;
         }
         System.out.println(this.id + " - Plane is now empty.");
     }
 
-    private synchronized void load_passengers() {
+    private void load_passengers() {
         System.out.println(this.id + " - Embarking passengers...");
         passengers = new Random().nextInt(50);
         for (int i = 0; i < passengers; i++) {

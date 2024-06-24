@@ -21,6 +21,10 @@ public class Tower {
         refuelling_truck = new RefuellingTruck();
     }
 
+    public void depart(Plane plane) {
+        
+    }
+
     public void request_refuel(Plane plane) {
         refuelling_truck.fuel_plane(plane);
     }
