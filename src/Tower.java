@@ -46,6 +46,7 @@ public class Tower {
 
             System.out.println(plane.id + " - Plane " + plane.id + " is departing.");
             System.out.println(plane.id + " - is moving to the runway and is now departing.");
+            cannot_depart.signalAll();
             runway.occupy();
             try {
                 Thread.sleep(2000); // simulate moving to runway and departing.
@@ -55,6 +56,9 @@ public class Tower {
             }
 
             runway.free();
+            can_depart.signalAll(); // tells other planes that are waiting to depart that they can.
+            can_land.signalAll(); // tells planes waiting to land that they can land as at this point
+                                  // a gate and a runway is free.
         } finally {
             lock.unlock();
         }
@@ -115,11 +119,11 @@ public class Tower {
         boolean can_land = unoccupied_gate != -1 && !occupied_runway;
 
         if (can_land) {
-            this.can_land.signal();
+            this.can_land.signalAll();
             return unoccupied_gate;
         }
         
-        cannot_land.signal();
+        cannot_land.signalAll();
         return -1;
     }
 
