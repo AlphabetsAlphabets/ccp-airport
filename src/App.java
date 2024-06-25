@@ -15,22 +15,27 @@ public class App {
         Plane planeTwo = new Plane(2, tower);
         Plane PlaneThree = new Plane(3, tower);        
         Plane PlaneFour = new Plane(4, tower);
+        Plane PlaneFive = new Plane(5, tower);
 
         Thread PlaneOneThread = new Thread(planeOne);
         Thread PlaneTwoThread = new Thread(planeTwo);
         Thread PlaneThreeThread = new Thread(PlaneThree);
         Thread PlaneFourThread = new Thread(PlaneFour);
+        Thread PlaneFiveThread = new Thread(PlaneFive);
 
         PlaneOneThread.start();
         PlaneTwoThread.start();
         PlaneThreeThread.start();        
         PlaneFourThread.start();
+        PlaneFiveThread.start();
 
         PlaneOneThread.join();
         PlaneTwoThread.join();
         PlaneThreeThread.join();
         PlaneFourThread.join();
+        PlaneFiveThread.join();
 
+        fuelTruck.kill();
         fuelTruckThread.join();
         
         System.out.println("Finished");
