@@ -10,7 +10,6 @@ public class Tower {
 
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
-    private Condition cannot_land = lock.newCondition();
     
     private Condition can_depart = lock.newCondition();
     private Condition cannot_depart = lock.newCondition();
@@ -123,7 +122,6 @@ public class Tower {
             return unoccupied_gate;
         }
         
-        cannot_land.signalAll();
         return -1;
     }
 
