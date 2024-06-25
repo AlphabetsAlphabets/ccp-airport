@@ -60,7 +60,9 @@ public class Tower {
                 e.printStackTrace();
             }
 
+            System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " has departed.");
             runway.free();
+            
             can_depart.signalAll(); // tells other planes that are waiting to depart that they can.
             can_land.signalAll(); // tells planes waiting to land that they can land as at this point
                                   // a gate and a runway is free.
