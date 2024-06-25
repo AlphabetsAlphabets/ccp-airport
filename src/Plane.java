@@ -20,7 +20,7 @@ public class Plane implements Runnable {
     @Override
     public void run() {
         int gate_id = tower.land(this);
-        tower.request_refuel(this);
+        tower.requestRefuel(this);
         unload_passengers();
         load_passengers();
         tower.depart(this, gate_id);

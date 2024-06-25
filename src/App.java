@@ -1,7 +1,12 @@
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
 public class App {
     public static void ideal_scenario() throws InterruptedException {
-        Tower tower = new Tower();
-        FuelTruck fuelTruck = new FuelTruck();
+        BlockingQueue<Plane> refuelQueue = new LinkedBlockingQueue<Plane>();
+
+        Tower tower = new Tower(refuelQueue);
+        FuelTruck fuelTruck = new FuelTruck(refuelQueue);
         Thread fuelTruckThread = new Thread(fuelTruck);
 
         fuelTruckThread.start();

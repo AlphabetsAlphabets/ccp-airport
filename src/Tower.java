@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -6,21 +7,26 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Tower {
     public ArrayList<Gate> gates = new ArrayList<>();
     public Runway runway;
-    public FuelTruck fuel_truck;
+    
 
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
     
     private Condition can_depart = lock.newCondition();
-    private Condition cannot_depart = lock.newCondition();
 
-    Tower() {
+    private BlockingQueue<Plane> refuelQueue;
+
+    Tower(BlockingQueue<Plane> refuelQueue) {
         gates.add(new Gate(1));
         gates.add(new Gate(2));
         gates.add(new Gate(3));
 
         runway = new Runway();
-        fuel_truck = new FuelTruck();
+        this.refuelQueue = refuelQueue;
+    }
+
+    public void requestRefuel(Plane plane) {
+        refuelQueue.add(plane);
     }
 
     public void depart(Plane plane, int gate_id) {
@@ -64,25 +70,17 @@ public class Tower {
     }
 
     /**
-     * Checks if the runway is occupied. Sends the cannot_depart signal if it is.
-     * Sends the can_depart signal if it isn't.
+     * Checks if the runway is occupied. Sends the can_depart signal if
+     * landing is allowed.
      * 
      * This function is used in isolation specifically for plane depatures.
      * @return can_depart (bool)
      */
     private boolean plane_can_depart() {
         boolean can_depart = !runway.is_occupied();
-        if (can_depart) {
-            // this.cannot_depart.signalAll();
-        } else {
-            this.can_depart.signalAll();
-        }
-
+        this.can_depart.signalAll();
+        
         return can_depart;
-    }
-
-    public void request_refuel(Plane plane) {
-        fuel_truck.fuel_plane(plane);
     }
 
     public int land(Plane plane) {
