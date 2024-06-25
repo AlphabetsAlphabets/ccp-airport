@@ -7,12 +7,17 @@ public class App {
         int maxPlanes = 4;
         BlockingQueue<Plane> refuelQueue = new LinkedBlockingQueue<Plane>();
 
-        Tower tower = new Tower(refuelQueue);
         FuelTruck fuelTruck = new FuelTruck(refuelQueue);
-        Thread fuelTruckThread = new Thread(fuelTruck);
+        Tower tower = new Tower(fuelTruck);
 
-        fuelTruckThread.start();
+        Thread fuelTruckThread = new Thread(fuelTruck);
         
+        // This thread serves the planes. Once the planes have finished their tasks.
+        // The thread will end. Which is why it is set as a daemon thread.
+        // Source: https://www.baeldung.com/java-daemon-thread
+        fuelTruckThread.setDaemon(true);
+        fuelTruckThread.start();
+
         ArrayList<Thread> threads = new ArrayList<>();
 
         for (int i = 0; i < maxPlanes; i++) {

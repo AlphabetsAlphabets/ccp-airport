@@ -1,12 +1,10 @@
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class FuelTruck implements Runnable {
     // Information from blocking queue:
     // https://www.baeldung.com/java-blocking-queue
     private BlockingQueue<Plane> queue;
     private String threadName;
-    private volatile boolean running = true;
 
     FuelTruck(BlockingQueue<Plane> queue) {
         this.queue = queue;
@@ -20,10 +18,16 @@ public class FuelTruck implements Runnable {
         Plane plane;
 
         try {
-            while (running || !queue.isEmpty()) {
-                plane = queue.poll(5L, TimeUnit.SECONDS);
-                if (plane != null) {
-                    fuelPlane(plane);
+            while (true) {
+                // multiple threads need access to the queue to check it's state.
+                // make sure it is owned to ensure that what it reads is accurate.
+                synchronized(queue) {
+                    while(queue.isEmpty()) {
+                        queue.wait();
+                    }
+                
+                    plane = queue.take();
+                    refuel(plane);
                 }
             }
         } catch (InterruptedException e) {
@@ -34,7 +38,7 @@ public class FuelTruck implements Runnable {
         System.out.println(threadName + " - No more planes. Fuel truck shutting down.");
     }
 
-    public void fuelPlane(Plane plane) {
+    public void refuel(Plane plane) {
         System.out.println(threadName + " - Currently refueling plane " + plane.id);
         try {
             Thread.sleep(1000); // Refueling takes time.
@@ -45,7 +49,13 @@ public class FuelTruck implements Runnable {
         System.out.println(threadName + " - Plane " + plane.id + " is now full!");
     }
 
-    public void kill() {
-        running = false;
+    public void add(Plane plane) {
+        // multiple threads will run this function. Ensure that only
+        // one thread owns the queue as the queue's data will be modified.
+        synchronized(queue) {
+            queue.add(plane);
+            queue.notify();
+        }
+
     }
 }

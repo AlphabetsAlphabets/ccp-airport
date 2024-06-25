@@ -3,6 +3,8 @@ Learned how to use `ReentrantLock` from https://jakob.jenkov.com/tutorials/java-
 
 Learned about the BlockingQueue from https://www.baeldung.com/java-blocking-queue
 
+This thread serves the planes. Once the planes have finished their tasks. The thread will end. Which is why it is set as a daemon thread. Source: https://www.baeldung.com/java-daemon-thread
+
 # Unused
 Semaphore general definition - https://www.baeldung.com/cs/semaphore
 Semaphore in Java - https://www.baeldung.com/java-semaphore

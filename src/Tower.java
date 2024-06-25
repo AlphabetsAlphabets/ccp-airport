@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -8,25 +7,24 @@ public class Tower {
     public ArrayList<Gate> gates = new ArrayList<>();
     public Runway runway;
     
-
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
     
     private Condition can_depart = lock.newCondition();
 
-    private BlockingQueue<Plane> refuelQueue;
+    private FuelTruck fuelTruck;
 
-    Tower(BlockingQueue<Plane> refuelQueue) {
+    Tower(FuelTruck fuelTruck) {
         gates.add(new Gate(1));
         gates.add(new Gate(2));
         gates.add(new Gate(3));
 
         runway = new Runway();
-        this.refuelQueue = refuelQueue;
+        this.fuelTruck = fuelTruck;
     }
 
     public void requestRefuel(Plane plane) {
-        refuelQueue.add(plane);
+        fuelTruck.add(plane);
     }
 
     public void depart(Plane plane, int gate_id) {
@@ -51,7 +49,7 @@ public class Tower {
 
             System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " is departing.");
             System.out.println(Thread.currentThread().getName() + " - is moving to the runway and is now departing.");
-            // cannot_depart.signalAll();
+            
             runway.occupy();
             try {
                 Thread.sleep(2000); // simulate moving to runway and departing.
