@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Tower {
     public ArrayList<Gate> gates = new ArrayList<>();
     public Runway runway;
-    public RefuellingTruck refuelling_truck;
+    public FuelTruck refuelling_truck;
 
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
@@ -20,7 +20,7 @@ public class Tower {
         gates.add(new Gate(3));
 
         runway = new Runway();
-        refuelling_truck = new RefuellingTruck();
+        refuelling_truck = new FuelTruck();
     }
 
     public void depart(Plane plane, int gate_id) {
@@ -45,7 +45,7 @@ public class Tower {
 
             System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " is departing.");
             System.out.println(Thread.currentThread().getName() + " - is moving to the runway and is now departing.");
-            cannot_depart.signalAll();
+            // cannot_depart.signalAll();
             runway.occupy();
             try {
                 Thread.sleep(2000); // simulate moving to runway and departing.
@@ -73,7 +73,7 @@ public class Tower {
     private boolean plane_can_depart() {
         boolean can_depart = !runway.is_occupied();
         if (can_depart) {
-            this.cannot_depart.signalAll();
+            // this.cannot_depart.signalAll();
         } else {
             this.can_depart.signalAll();
         }

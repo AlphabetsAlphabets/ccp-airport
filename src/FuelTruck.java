@@ -3,13 +3,13 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import java.util.concurrent.locks.Condition;
 
-public class RefuellingTruck {
+public class FuelTruck {
     private boolean occupied;
     private Lock lock = new ReentrantLock();
     private Condition servicing_plane = lock.newCondition();
     private Condition not_servicing_pane = lock.newCondition();
 
-    RefuellingTruck() {
+    FuelTruck() {
         occupied = false;
     }
 
