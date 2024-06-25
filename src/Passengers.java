@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Passengers implements Runnable {
     private int number = new Random().nextInt(51);
     public Lock lock = new ReentrantLock();
-    public Condition plane_is_ready = lock.newCondition();
+    public Condition planeIsReady = lock.newCondition();
 
     private void disembark() {
         for (int i = number; i != 0; i--) {
@@ -35,7 +35,7 @@ public class Passengers implements Runnable {
     public void run() {
         while (true) {
             try {
-                plane_is_ready.await();
+                planeIsReady.await();
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

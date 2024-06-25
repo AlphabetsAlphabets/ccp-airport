@@ -5,14 +5,14 @@ public class Plane implements Runnable {
     public int id;
     // 50 max passengers, range is 0 to 50
     private int passengers;
-    private int max_passengers;
+    private int maxPassengers;
 
     private Tower tower;
 
     Plane(int id, Tower tower) {
         passengers  = new Random().nextInt(1, 51);
+        maxPassengers = passengers;
         
-        max_passengers = passengers;
         this.id = id;
         this.tower = tower;
     }
@@ -21,48 +21,19 @@ public class Plane implements Runnable {
     public void run() {
         int gate_id = tower.land(this);
         tower.requestRefuel(this);
-        unload_passengers();
-        load_passengers();
+        unloadPassengers();
+        loadPassengers();
         tower.depart(this, gate_id);
     }
 
     public int land(int gate_id) {
-        this.land_at_runway();
-        this.dock_at_gate(gate_id);
+        this.landAtRunway();
+        this.dockAtGate(gate_id);
 
         return gate_id;
     }
 
-    private synchronized void unload_passengers() {
-        System.out.println(Thread.currentThread().getName() + " - Passengers are currently disembarking from plane " + id + "...");
-        for (int i = 0; max_passengers != 0; i++) {
-            try {
-                Thread.sleep(500); // simulating passengers leaving the plane.
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-            max_passengers--;
-        }
-        System.out.println(Thread.currentThread().getName() + " - Plane is now empty.");
-    }
-
-    private synchronized void load_passengers() {
-        System.out.println(Thread.currentThread().getName() + " - Passengers are curently embarking to plane " + id + "...");
-        passengers = new Random().nextInt(1, 51);
-        for (int i = 0; i < passengers; i++) {
-            try {
-                Thread.sleep(500); // simluating passengers embarking onto the plane.
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
-        System.out.println(Thread.currentThread().getName() + " - All passengers are on board plane " + id + ".");
-    }
-
-    private void land_at_runway() {
+    private void landAtRunway() {
         System.out.println(Thread.currentThread().getName() + " - Plane " + id + " is landing on runway");
         try {
             Thread.sleep(1000); // landing takes time
@@ -73,7 +44,7 @@ public class Plane implements Runnable {
         tower.runway.occupy();
     }
 
-    private void dock_at_gate(int gate_id) {
+    private void dockAtGate(int gate_id) {
         System.out.println(Thread.currentThread().getName()  + " - Plane " + id + " has landed at runway successfully.");
         System.out.println(Thread.currentThread().getName() + " - Plane " + id + " is coasting to gate " + gate_id);
 
@@ -91,4 +62,36 @@ public class Plane implements Runnable {
 
         tower.runway.free(); // Once plane is at gate, runway is free
     }
+
+    private void unloadPassengers() {
+        System.out.println(Thread.currentThread().getName() + " - Passengers are currently disembarking from plane " + id + "...");
+
+        while (maxPassengers != 0) {
+            try {
+                Thread.sleep(500); // simulating passengers leaving the plane.
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            maxPassengers--;
+        }
+        
+        System.out.println(Thread.currentThread().getName() + " - Plane is now empty.");
+    }
+
+    private void loadPassengers() {
+        System.out.println(Thread.currentThread().getName() + " - Passengers are curently embarking to plane " + id + "...");
+        passengers = new Random().nextInt(1, 51);
+        for (int i = 0; i < passengers; i++) {
+            try {
+                Thread.sleep(500); // simluating passengers embarking onto the plane.
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        System.out.println(Thread.currentThread().getName() + " - All passengers are on board plane " + id + ".");
+    }
+
 }

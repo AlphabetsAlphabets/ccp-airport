@@ -33,7 +33,7 @@ public class Tower {
         try {
             lock.lock();
             // To depart only one condition is met: the runway must be unoccupied.
-            while (!plane_can_depart()) {
+            while (!planeCanDepart()) {
                 try {
                     this.can_depart.await();
                 } catch (InterruptedException e) {
@@ -43,7 +43,7 @@ public class Tower {
             }
 
             for (var gate: gates) {
-                if (gate.occupied_by(plane.id)) {
+                if (gate.occupiedBy(plane.id)) {
                     gate.free();
                     break;
                 }
@@ -76,8 +76,8 @@ public class Tower {
      * This function is used in isolation specifically for plane depatures.
      * @return can_depart (bool)
      */
-    private boolean plane_can_depart() {
-        boolean can_depart = !runway.is_occupied();
+    private boolean planeCanDepart() {
+        boolean can_depart = !runway.isOccupied();
         this.can_depart.signalAll();
         
         return can_depart;
@@ -89,7 +89,7 @@ public class Tower {
 
         try {
             lock.lock();
-            while ((gate_id = plane_can_land()) == -1) { // -1 means there are no free gates
+            while ((gate_id = planeCanLand()) == -1) { // -1 means there are no free gates
                 try {
                     can_land.await();
                 } catch (InterruptedException e) {
@@ -110,9 +110,9 @@ public class Tower {
      * Checks if a plane can land.
      * @return -1 if can't land. Otherwise returns gate id.
      */
-    private int plane_can_land() {
-        int unoccupied_gate = this.find_unoccupied_gate();
-        boolean occupied_runway = this.runway.is_occupied();
+    private int planeCanLand() {
+        int unoccupied_gate = this.findUnoccupiedGate();
+        boolean occupied_runway = this.runway.isOccupied();
         boolean can_land = unoccupied_gate != -1 && !occupied_runway;
 
         if (can_land) {
@@ -127,7 +127,7 @@ public class Tower {
      * Finds an unoccupied gate and returns its id.
      * @return gate id (int)
      */
-    private int find_unoccupied_gate() {
+    private int findUnoccupiedGate() {
         for (var gate : gates) {
             if (!gate.is_occupied()) {
                 System.out.println("Unoccupied gate found.");

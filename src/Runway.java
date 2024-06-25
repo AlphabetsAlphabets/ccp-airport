@@ -13,7 +13,7 @@ public class Runway {
         this.occupied = false;
     }
 
-    public boolean is_occupied() {
+    public boolean isOccupied() {
         return this.occupied;
     }
 }
