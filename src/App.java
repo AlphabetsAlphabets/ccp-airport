@@ -31,6 +31,8 @@ public class App {
         PlaneThreeThread.join();
         PlaneFourThread.join();
 
+        // Stop the fuel truck after all the planes have left.
+        fuelTruck.stop();
         fuelTruckThread.join();
         
         System.out.println("Finished");

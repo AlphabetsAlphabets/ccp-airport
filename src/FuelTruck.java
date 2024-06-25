@@ -6,6 +6,7 @@ public class FuelTruck implements Runnable {
     // https://www.baeldung.com/java-blocking-queue
     private BlockingQueue<Plane> queue;
     private String threadName;
+    private volatile boolean running = true;
 
     FuelTruck(BlockingQueue<Plane> queue) {
         this.queue = queue;
@@ -16,11 +17,11 @@ public class FuelTruck implements Runnable {
         threadName = Thread.currentThread().getName();
         System.out.println(threadName + " - Fuel truck ready and waiting!");
 
-        Plane plane;
-
         try {
-            // If there are no planes within 5 seconds then the fuel truck retires.
-            while ((plane = queue.poll(5L, TimeUnit.SECONDS)) != null) {
+            Plane plane;
+            // If there are no more planes within the last 10 seconds
+            // and the queue is empty, then the truck will shutdown.
+            while ((plane = queue.poll(10L, TimeUnit.SECONDS)) != null && queue.isEmpty()) {
                 fuelPlane(plane);
             }
         } catch (InterruptedException e) {
@@ -40,5 +41,9 @@ public class FuelTruck implements Runnable {
             e.printStackTrace();
         }
         System.out.println(threadName + " - Plane " + plane.id + " is now full!");
+    }
+
+    public void stop() {
+        running = false;
     }
 }
