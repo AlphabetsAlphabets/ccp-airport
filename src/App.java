@@ -1,8 +1,10 @@
+import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class App {
     public static void ideal_scenario() throws InterruptedException {
+        int maxPlanes = 4;
         BlockingQueue<Plane> refuelQueue = new LinkedBlockingQueue<Plane>();
 
         Tower tower = new Tower(refuelQueue);
@@ -11,32 +13,18 @@ public class App {
 
         fuelTruckThread.start();
         
-        Plane planeOne = new Plane(1, tower);
-        Plane planeTwo = new Plane(2, tower);
-        Plane PlaneThree = new Plane(3, tower);        
-        Plane PlaneFour = new Plane(4, tower);
-        Plane PlaneFive = new Plane(5, tower);
+        ArrayList<Thread> threads = new ArrayList<>();
 
-        Thread PlaneOneThread = new Thread(planeOne);
-        Thread PlaneTwoThread = new Thread(planeTwo);
-        Thread PlaneThreeThread = new Thread(PlaneThree);
-        Thread PlaneFourThread = new Thread(PlaneFour);
-        Thread PlaneFiveThread = new Thread(PlaneFive);
+        for (int i = 0; i < maxPlanes; i++) {
+            Plane plane = new Plane(i + 1, tower);
+            Thread thread = new Thread(plane);
+            thread.start();
+            threads.add(thread);
+        }
 
-        PlaneOneThread.start();
-        PlaneTwoThread.start();
-        PlaneThreeThread.start();        
-        PlaneFourThread.start();
-        PlaneFiveThread.start();
-
-        PlaneOneThread.join();
-        PlaneTwoThread.join();
-        PlaneThreeThread.join();
-        PlaneFourThread.join();
-        PlaneFiveThread.join();
-
-        fuelTruck.kill();
-        fuelTruckThread.join();
+        for (var thread : threads) {
+            thread.join();
+        }
         
         System.out.println("Finished");
     }
