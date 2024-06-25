@@ -1,26 +1,32 @@
 public class App {
     public static void ideal_scenario() throws InterruptedException {
         Tower tower = new Tower();
+        FuelTruck fuelTruck = new FuelTruck();
+        Thread fuelTruckThread = new Thread(fuelTruck);
+
+        fuelTruckThread.start();
         
-        Plane plane_one = new Plane(1, tower);
-        Plane plane_two = new Plane(2, tower);
-        Plane plane_three = new Plane(3, tower);        
-        Plane plane_four = new Plane(4, tower);
+        Plane planeOne = new Plane(1, tower);
+        Plane planeTwo = new Plane(2, tower);
+        Plane PlaneThree = new Plane(3, tower);        
+        Plane PlaneFour = new Plane(4, tower);
 
-        Thread t_plane_one = new Thread(plane_one);
-        Thread t_plane_two = new Thread(plane_two);
-        Thread t_plane_three = new Thread(plane_three);
-        Thread t_plane_four = new Thread(plane_four);
+        Thread PlaneOneThread = new Thread(planeOne);
+        Thread PlaneTwoThread = new Thread(planeTwo);
+        Thread PlaneThreeThread = new Thread(PlaneThree);
+        Thread PlaneFourThread = new Thread(PlaneFour);
 
-        t_plane_one.start();
-        t_plane_two.start();
-        t_plane_three.start();        
-        t_plane_four.start();
+        PlaneOneThread.start();
+        PlaneTwoThread.start();
+        PlaneThreeThread.start();        
+        PlaneFourThread.start();
 
-        t_plane_one.join();
-        t_plane_two.join();
-        t_plane_three.join();     
-        t_plane_four.join();
+        PlaneOneThread.join();
+        PlaneTwoThread.join();
+        PlaneThreeThread.join();
+        PlaneFourThread.join();
+
+        fuelTruckThread.join();
         
         System.out.println("Finished");
     }

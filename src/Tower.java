@@ -6,7 +6,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class Tower {
     public ArrayList<Gate> gates = new ArrayList<>();
     public Runway runway;
-    public FuelTruck refuelling_truck;
+    public FuelTruck fuel_truck;
 
     private Lock lock = new ReentrantLock();
     private Condition can_land = lock.newCondition();
@@ -20,7 +20,7 @@ public class Tower {
         gates.add(new Gate(3));
 
         runway = new Runway();
-        refuelling_truck = new FuelTruck();
+        fuel_truck = new FuelTruck();
     }
 
     public void depart(Plane plane, int gate_id) {
@@ -82,7 +82,7 @@ public class Tower {
     }
 
     public void request_refuel(Plane plane) {
-        refuelling_truck.fuel_plane(plane);
+        fuel_truck.fuel_plane(plane);
     }
 
     public int land(Plane plane) {
