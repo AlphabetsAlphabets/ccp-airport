@@ -1,7 +1,5 @@
 public class App {
-    public static volatile RefuellingTruck refuelling_truck = new RefuellingTruck();
-    
-    public static void main(String[] args) throws Exception {
+    public static void ideal_scenario() throws InterruptedException {
         Tower tower = new Tower();
         
         Plane plane_one = new Plane(1, tower);
@@ -25,5 +23,9 @@ public class App {
         t_plane_four.join();
         
         System.out.println("Finished");
+    }
+    
+    public static void main(String[] args) throws Exception {
+        ideal_scenario();
     }
 }

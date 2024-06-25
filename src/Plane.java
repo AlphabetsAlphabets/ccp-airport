@@ -34,7 +34,7 @@ public class Plane implements Runnable {
     }
 
     private synchronized void unload_passengers() {
-        System.out.println(this.id + " - Disembarking passengers...");
+        System.out.println(Thread.currentThread().getName() + " - Passengers are currently disembarking from plane " + id + "...");
         for (int i = 0; max_passengers != 0; i++) {
             try {
                 Thread.sleep(500); // simulating passengers leaving the plane.
@@ -45,11 +45,11 @@ public class Plane implements Runnable {
 
             max_passengers--;
         }
-        System.out.println(this.id + " - Plane is now empty.");
+        System.out.println(Thread.currentThread().getName() + " - Plane is now empty.");
     }
 
     private synchronized void load_passengers() {
-        System.out.println(this.id + " - Embarking passengers...");
+        System.out.println(Thread.currentThread().getName() + " - Passengers are curently embarking to plane " + id + "...");
         passengers = new Random().nextInt(1, 51);
         for (int i = 0; i < passengers; i++) {
             try {
@@ -59,11 +59,11 @@ public class Plane implements Runnable {
                 e.printStackTrace();
             }
         }
-        System.out.println(this.id + " - All passengers are on board.");
+        System.out.println(Thread.currentThread().getName() + " - All passengers are on board plane " + id + ".");
     }
 
     private void land_at_runway() {
-        System.out.println(id + " - landing on runway");
+        System.out.println(Thread.currentThread().getName() + " - Plane " + id + " is landing on runway");
         try {
             Thread.sleep(1000); // landing takes time
         } catch (InterruptedException e) {
@@ -74,8 +74,8 @@ public class Plane implements Runnable {
     }
 
     private void dock_at_gate(int gate_id) {
-        System.out.println(id + " - landed at runway successfully.");
-        System.out.println(id + " - coasting to gate " + gate_id);
+        System.out.println(Thread.currentThread().getName()  + " - Plane " + id + " has landed at runway successfully.");
+        System.out.println(Thread.currentThread().getName() + " - Plane " + id + " is coasting to gate " + gate_id);
 
         try {
             Thread.sleep(1000); // Coasting to a gate takes time.

@@ -44,8 +44,8 @@ public class Tower {
                 }
             }
 
-            System.out.println(plane.id + " - Plane " + plane.id + " is departing.");
-            System.out.println(plane.id + " - is moving to the runway and is now departing.");
+            System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " is departing.");
+            System.out.println(Thread.currentThread().getName() + " - is moving to the runway and is now departing.");
             cannot_depart.signalAll();
             runway.occupy();
             try {
@@ -87,7 +87,7 @@ public class Tower {
     }
 
     public int land(Plane plane) {
-        System.out.println(plane.id + "- Landing request.");
+        System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " requesting to land.");
         int gate_id = -1;
 
         try {

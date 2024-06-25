@@ -23,13 +23,13 @@ public class RefuellingTruck {
     }
 
     private void occupy(Plane plane) {
-        System.out.println(plane.id + " - Refuelling truck is now servicing plane " + plane.id);
+        System.out.println(Thread.currentThread().getName()  + " - Refuelling truck is now servicing plane " + plane.id);
         occupied = true;
         servicing_plane.signal();
     }
 
     private void free(Plane plane) {
-        System.out.println(plane.id + " - Refuelling truck is done with plane " + plane.id);
+        System.out.println(Thread.currentThread().getName()  + " - Refuelling truck is done with plane " + plane.id);
         occupied = false;
         not_servicing_pane.signal();
     }
