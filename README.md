@@ -18,3 +18,8 @@ can_depart.signalAll(); // tells other planes that are waiting to depart that th
 can_land.signalAll(); // tells planes waiting to land that they can land as at this point
                      // a gate and a runway is free.
 ```
+
+---
+
+1. Look into whether an ATC is required.
+2. Ask ChatGPT h

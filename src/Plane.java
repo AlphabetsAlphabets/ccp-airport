@@ -6,6 +6,7 @@ public class Plane implements Runnable {
     // 50 max passengers, range is 0 to 50
     private int passengers;
     private int maxPassengers;
+    private boolean emergency;
 
     private Tower tower;
 
@@ -19,11 +20,21 @@ public class Plane implements Runnable {
 
     @Override
     public void run() {
-        int gate_id = tower.land(this);
+        int gate_id;
+        if (emergency) {
+            gate_id = tower.emergency_landing(this);
+        } else {
+            gate_id = tower.land(this);
+        }
+        
         tower.fuelTruck.refuel(this);
         unloadPassengers();
         loadPassengers();
         tower.depart(this, gate_id);
+    }
+
+    public void has_emergency() {
+        emergency = true;
     }
 
     public int land(int gate_id) {

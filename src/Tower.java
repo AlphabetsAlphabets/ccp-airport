@@ -23,6 +23,10 @@ public class Tower {
         this.fuelTruck = fuelTruck;
     }
 
+    public int emergency_landing(Plane plane) { 
+        return 0;
+    }
+
     public void depart(Plane plane, int gate_id) {
         try {
             lock.lock();
