@@ -41,7 +41,7 @@ public class FuelTruck implements Runnable {
     public void refuel(Plane plane) {
         System.out.println(threadName + " - Currently refueling plane " + plane.id);
         try {
-            Thread.sleep(1000); // Refueling takes time.
+            Thread.sleep(2000); // Refueling takes time.
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

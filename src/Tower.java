@@ -12,7 +12,7 @@ public class Tower {
     
     private Condition can_depart = lock.newCondition();
 
-    private FuelTruck fuelTruck;
+    public FuelTruck fuelTruck;
 
     Tower(FuelTruck fuelTruck) {
         gates.add(new Gate(1));
@@ -21,10 +21,6 @@ public class Tower {
 
         runway = new Runway();
         this.fuelTruck = fuelTruck;
-    }
-
-    public void requestRefuel(Plane plane) {
-        fuelTruck.add(plane);
     }
 
     public void depart(Plane plane, int gate_id) {
