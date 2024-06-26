@@ -3,7 +3,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class App {
-    public static void ideal_scenario() throws InterruptedException {
+    public static void main(String[] args) throws Exception {
         int maxPlanes = 4;
         BlockingQueue<Plane> refuelQueue = new LinkedBlockingQueue<Plane>();
 
@@ -32,9 +32,5 @@ public class App {
         }
         
         System.out.println("Finished");
-    }
-    
-    public static void main(String[] args) throws Exception {
-        ideal_scenario();
     }
 }
