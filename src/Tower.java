@@ -1,141 +1,124 @@
 import java.util.ArrayList;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.LinkedList;
+import java.util.Queue;
 
-public class Tower {
-    public ArrayList<Gate> gates = new ArrayList<>();
-    public Runway runway;
-    
-    private Lock lock = new ReentrantLock();
-    private Condition can_land = lock.newCondition();
-    
-    private Condition can_depart = lock.newCondition();
+public class Tower implements Runnable {
+    private String threadName;
 
-    public FuelTruck fuelTruck;
+    public Airport airport;
+    private Queue<Plane> queue = new LinkedList<>();
 
-    Tower(FuelTruck fuelTruck) {
-        gates.add(new Gate(1));
-        gates.add(new Gate(2));
-        gates.add(new Gate(3));
-
-        runway = new Runway();
-        this.fuelTruck = fuelTruck;
+    public Tower(Airport airport, Queue<Plane> queue) {
+        this.airport = airport;
+        this.queue = queue;
     }
 
-    public int emergency_landing(Plane plane) { 
-        return 0;
+    public void run() {
+        Thread.currentThread().setName("Tower thread: ");
+        threadName = Thread.currentThread().getName();
+
+        System.out.println(threadName + " tower has started running.");
+
+        ArrayList<Thread> threads = new ArrayList<>();
+
+        while (!queue.isEmpty()) { // meaning there are no planes.
+            Plane plane = queue.poll();
+
+            Thread thread = new Thread(plane);
+            
+            threads.add(thread);
+            thread.start();
+        }
+    
+        for (var thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void depart(Plane plane, int gate_id) {
-        try {
-            lock.lock();
-            // To depart only one condition is met: the runway must be unoccupied.
-            while (!planeCanDepart()) {
+    public void land(Plane plane) {
+        System.out.println(threadName + " Plane " + plane.id + " is requesting to land.");
+
+        Gate freeGate = null;
+        while (freeGate == null) { // If a plane can't land, it needs to keep waiting until it can.
+            synchronized(airport.runway) {
+                while (airport.runway.isOccupied()) {
+                    try {
+                        System.out.println(threadName + " Plane " + plane.id + " not allowed to land. Runway is occupied.");
+                        wait();
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+
+                synchronized(airport.gates) {
+                    for (var gate : airport.gates) {
+                        if (gate.is_occupied()) continue;
+                        freeGate = gate;
+                    }
+                    
+                    if (freeGate == null) {
+                        System.out.println(threadName + "Plane " + plane.id + " is not allowed to land." + "Runway is free but no gates are free.");
+                        try {
+                            Thread.sleep(2000); // Simulate pilot waiting a few minutes before requesting to land.
+                        } catch (InterruptedException e) {
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
+                        }
+                        continue;
+                    }
+                    
+                    System.out.println(threadName + "Plane " + plane.id + " is cleared for landing. Please coast to Gate " + freeGate.get_id());
+                    airport.runway.occupy();
+                    try {
+                        Thread.sleep(1000); // Plane coasting on runway to gate.
+                    } catch (InterruptedException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    airport.runway.free();
+                    notifyAll();
+                    freeGate.occupy(plane.id);
+                }
+            }
+        }
+    }
+
+    public void depart(Plane plane) {
+        System.out.println(threadName + "Plane " + plane.id + " is requesting to depart.");
+        synchronized(airport.runway) {
+            while (airport.runway.isOccupied()) {
                 try {
-                    this.can_depart.await();
+                    wait();
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
 
-            for (var gate: gates) {
-                if (gate.occupiedBy(plane.id)) {
-                    gate.free();
-                    break;
+            System.out.println(threadName + "Plane " + plane.id + " cleared for depature.");
+            synchronized(airport.gates) {
+                for (var gate: airport.gates) {
+                    if (gate.occupiedBy(plane.id)) gate.free();
                 }
             }
 
-            System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " is departing.");
-            System.out.println(Thread.currentThread().getName() + " - is moving to the runway and is now departing.");
-            
-            runway.occupy();
+            airport.runway.occupy();
             try {
-                Thread.sleep(2000); // simulate moving to runway and departing.
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-
-            System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " has departed.");
-            runway.free();
-            
-            can_depart.signalAll(); // tells other planes that are waiting to depart that they can.
-            can_land.signalAll(); // tells planes waiting to land that they can land as at this point
-                                  // a gate and a runway is free.
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    /**
-     * Checks if the runway is occupied. Sends the can_depart signal if
-     * landing is allowed.
-     * 
-     * This function is used in isolation specifically for plane depatures.
-     * @return can_depart (bool)
-     */
-    private boolean planeCanDepart() {
-        boolean can_depart = !runway.isOccupied();
-        this.can_depart.signalAll();
-        
-        return can_depart;
-    }
-
-    public int land(Plane plane) {
-        System.out.println(Thread.currentThread().getName() + " - Plane " + plane.id + " requesting to land.");
-        int gate_id = -1;
-
-        try {
-            lock.lock();
-            while ((gate_id = planeCanLand()) == -1) { // -1 means there are no free gates
-                try {
-                    can_land.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-  
-            plane.land(gate_id);
-        } finally {
-            lock.unlock();
+            airport.runway.free();
+            System.out.println(threadName + "Plane " + plane.id + " has successfully taken off.");
+            notifyAll();
         }
 
-        return gate_id;
     }
-
-
-    /**
-     * Checks if a plane can land.
-     * @return -1 if can't land. Otherwise returns gate id.
-     */
-    private int planeCanLand() {
-        int unoccupied_gate = this.findUnoccupiedGate();
-        boolean occupied_runway = this.runway.isOccupied();
-        boolean can_land = unoccupied_gate != -1 && !occupied_runway;
-
-        if (can_land) {
-            this.can_land.signalAll();
-            return unoccupied_gate;
-        }
-        
-        return -1;
-    }
-
-    /**
-     * Finds an unoccupied gate and returns its id.
-     * @return gate id (int)
-     */
-    private int findUnoccupiedGate() {
-        for (var gate : gates) {
-            if (!gate.is_occupied()) {
-                System.out.println("Unoccupied gate found.");
-                return gate.get_id();
-            }
-        }
-
-        return -1;
-    }
-
 }
