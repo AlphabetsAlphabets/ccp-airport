@@ -1,12 +1,19 @@
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Tower implements Runnable {
     private String threadName;
 
     public Airport airport;
     private Queue<Plane> queue = new LinkedList<>();
+
+    private Lock runwayLock = new ReentrantLock();
+    private Condition runwayIsFree = runwayLock.newCondition();
+
+    private Lock gateLock = new ReentrantLock();
 
     public Tower(Airport airport, Queue<Plane> queue) {
         this.airport = airport;
@@ -17,108 +24,79 @@ public class Tower implements Runnable {
         Thread.currentThread().setName("Tower thread: ");
         threadName = Thread.currentThread().getName();
 
-        System.out.println(threadName + " tower has started running.");
+        System.out.println(threadName + "Tower has started running.");
+    }
 
-        ArrayList<Thread> threads = new ArrayList<>();
-
-        while (!queue.isEmpty()) { // meaning there are no planes.
-            Plane plane = queue.poll();
-
-            Thread thread = new Thread(plane);
-            
-            threads.add(thread);
-            thread.start();
-        }
-    
-        for (var thread : threads) {
-            try {
-                thread.join();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+    public void refuel(Plane plane) {
+        airport.truck.refuel(plane);
     }
 
     public void land(Plane plane) {
-        System.out.println(threadName + " Plane " + plane.id + " is requesting to land.");
-
-        Gate freeGate = null;
-        while (freeGate == null) { // If a plane can't land, it needs to keep waiting until it can.
-            synchronized(airport.runway) {
-                while (airport.runway.isOccupied()) {
-                    try {
-                        System.out.println(threadName + " Plane " + plane.id + " not allowed to land. Runway is occupied.");
-                        wait();
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                }
-
-                synchronized(airport.gates) {
-                    for (var gate : airport.gates) {
-                        if (gate.is_occupied()) continue;
-                        freeGate = gate;
-                    }
-                    
-                    if (freeGate == null) {
-                        System.out.println(threadName + "Plane " + plane.id + " is not allowed to land." + "Runway is free but no gates are free.");
-                        try {
-                            Thread.sleep(2000); // Simulate pilot waiting a few minutes before requesting to land.
-                        } catch (InterruptedException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        continue;
-                    }
-                    
-                    System.out.println(threadName + "Plane " + plane.id + " is cleared for landing. Please coast to Gate " + freeGate.get_id());
-                    airport.runway.occupy();
-                    try {
-                        Thread.sleep(1000); // Plane coasting on runway to gate.
-                    } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-                    airport.runway.free();
-                    notifyAll();
-                    freeGate.occupy(plane.id);
-                }
-            }
-        }
-    }
-
-    public void depart(Plane plane) {
-        System.out.println(threadName + "Plane " + plane.id + " is requesting to depart.");
-        synchronized(airport.runway) {
+        System.out.println(threadName + " Plane " + plane.id + " is requesting to land.");        
+        try {
+            runwayLock.lock();
             while (airport.runway.isOccupied()) {
                 try {
-                    wait();
+                    System.out.println(threadName + "Runway is occupied. Plane " + plane.id + " is not allowed to land.");
+                    runwayIsFree.await();
                 } catch (InterruptedException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
             }
 
-            System.out.println(threadName + "Plane " + plane.id + " cleared for depature.");
-            synchronized(airport.gates) {
-                for (var gate: airport.gates) {
-                    if (gate.occupiedBy(plane.id)) gate.free();
+            try {
+                gateLock.lock();
+                for (var gate : airport.gates) {
+                    if (gate.is_occupied()) continue;
+
+                    System.out.println(threadName + " Plane " + plane.id + " is cleared for landing. Please coast to Gate " + gate.get_id());
+                    airport.runway.occupy();
+                    gate.occupy(plane.id);
+
+                    airport.runway.free();
+                    runwayIsFree.signal();
+                    break;
+                }
+            } finally {
+                gateLock.unlock();
+            }
+        } finally {
+            runwayLock.unlock();
+        }
+    }
+
+    public void depart(Plane plane) {
+        System.out.println(threadName + "Plane " + plane.id + " is requesting to depart.");
+        try {
+            runwayLock.lock();
+            while (airport.runway.isOccupied()) {
+                try {
+                    System.out.println(threadName + "Runway is occupied. Plane " + plane.id + " is not allowed to depart.");
+                    runwayIsFree.await();
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                 }
             }
 
-            airport.runway.occupy();
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            airport.runway.free();
-            System.out.println(threadName + "Plane " + plane.id + " has successfully taken off.");
-            notifyAll();
-        }
+                gateLock.lock();
+                for (var gate : airport.gates) {
+                    if (gate.occupiedBy(plane.id)) {    
+                        gate.free();
+                        break;
+                    }
+                }
 
+                System.out.println(threadName + "Runway is now free. Plane " + plane.id + " is cleared for depature.");
+                airport.runway.free();
+                runwayIsFree.signal();
+            } finally {
+                gateLock.unlock();
+            }
+        } finally {
+            runwayLock.unlock();
+        }
     }
 }

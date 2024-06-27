@@ -16,9 +16,7 @@ public class Plane implements Runnable {
     }
 
     private void depart() {
-        synchronized(tower) {
-            tower.depart(this);
-        }
+        tower.depart(this);
     }
 
     private void load_passengers() {
@@ -30,8 +28,7 @@ public class Plane implements Runnable {
     }
 
     private void land() {
-        synchronized(tower) {
-            tower.land(this);
-        }
+        tower.land(this);
+        
     }
 }
