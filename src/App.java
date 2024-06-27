@@ -1,46 +1,35 @@
-import java.util.ArrayList;
-import java.util.Random;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        // Congested scenario
-        BlockingQueue<Plane> refuelQueue = new LinkedBlockingQueue<Plane>();
-        FuelTruck fuelTruck = new FuelTruck(refuelQueue);
+        Airport airport = new Airport();
 
-        Tower tower = new Tower(fuelTruck);
-        Thread fuelTruckThread = new Thread(fuelTruck);
-               
-        // This thread serves the planes. Once the planes have finished their tasks.
-        // The thread will end. Which is why it is set as a daemon thread.
-        // Source: https://www.baeldung.com/java-daemon-thread
-        fuelTruckThread.setDaemon(true);
-        fuelTruckThread.start();
+        Queue<Plane> planeQueue = new LinkedList<>();
+        Tower tower = new Tower(airport, planeQueue);
+        Plane p1 = new Plane(1, tower);
+        Plane p2 = new Plane(2, tower);
+        Plane p3 = new Plane(3, tower);
+        Plane p4 = new Plane(4, tower);
+        
+        planeQueue.add(p1);
+        planeQueue.add(p2);
+        // planeQueue.add(p3);
+        // planeQueue.add(p4);
 
-        ArrayList<Thread> threads = new ArrayList<>();
+        Thread towerThread = new Thread(tower);
 
-        // 6 planes landing
-        int maxPlanes = 6;
-        for (int i = 0; i < maxPlanes; i++) {
-            int delay = new Random().nextInt(1000, 6000);
-            Thread.sleep(delay); // Randomized arrival for each plane.
 
-            Plane plane;
-            plane = new Plane(i + 1, tower);
-            if (i == 2) {
-                // 3rd plane has an emergency.
-                plane.has_emergency();
-            }
+        towerThread.start();
 
-            Thread thread = new Thread(plane);
-            threads.add(thread);
-            thread.start();
-        }
- 
-        for (var thread: threads) {
-            thread.join();
-        }
+        
+        Thread p1Thread = new Thread(p1);
+        Thread p2Thread = new Thread(p2);
+
+        p1Thread.start();
+        p2Thread.start();
+
+        towerThread.join();
 
         System.out.println("Finished");
     }
