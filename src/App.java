@@ -1,17 +1,16 @@
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
 public class App {
-    private static void generatePlanes(int numPlanes, Tower tower) {
+    private static void generatePlanes(int numPlanes, Tower tower, BlockingQueue<Plane> queue) {
         ArrayList<Thread> planes = new ArrayList<>();
 
         for (int i = 0; i < numPlanes; i++) {
             Plane plane = new Plane(i + 1, tower);
             Thread t = new Thread(plane);
+            queue.add(plane);
             planes.add(t);
             t.start();
         }
@@ -29,21 +28,21 @@ public class App {
     public static void main(String[] args) throws Exception {
         BlockingQueue<Plane> planeQueue = new LinkedBlockingQueue<>();
 
-        RefuelTruck truck = new RefuelTruck();
+        Truck truck = new Truck(planeQueue);
+        Thread truckThread = new Thread(truck);
+        truckThread.start();
 
         Airport airport = new Airport();
         Tower tower = new Tower(airport, planeQueue);
+        Thread towerThread = new Thread(tower);
 
-        Thread refuThread = new Thread(truck);
-        Thread towerThread = new Thread(tower);        
-
-        refuThread.start();
         towerThread.start();
 
         int numPlanes = 4;
-        generatePlanes(numPlanes, tower);
+        generatePlanes(numPlanes, tower, planeQueue);
 
         towerThread.join();
+        truckThread.join();
 
         System.out.println("Finished");
     }

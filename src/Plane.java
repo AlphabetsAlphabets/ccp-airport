@@ -1,9 +1,11 @@
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Plane implements Runnable {
     public int id;
     private Tower tower;
     public int passengers;
+    public AtomicBoolean readyToRefuel = new AtomicBoolean(false);
 
     private String threadName;
 
@@ -48,7 +50,9 @@ public class Plane implements Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        // tower.refuel(this); // This is probably wrong, this runs concurrently.
+        
+        // Wait for the plane to be done refuelling.
+        while(readyToRefuel.get() == true) {}
     }
 
     private Thread cleanUp() {

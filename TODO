@@ -1,0 +1,13 @@
+Plane landing
+- [x] Runway
+- [x] Gate
+
+Post landing concurrent tasks
+- [x] Departure.
+
+Additional requirements
+- [x] Clean up crew
+- [x] Passengers embarking and disembarking.
+- [x] Fuel truck refuel
+- [ ] Statistics
+- [ ] Emergency landing

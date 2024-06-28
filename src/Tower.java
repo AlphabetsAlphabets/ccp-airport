@@ -1,11 +1,11 @@
-import java.util.LinkedList;
 import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Tower implements Runnable {
     private String threadName;
 
     public Airport airport;
-    private Queue<Plane> queue = new LinkedList<>();
+    private Queue<Plane> queue = new LinkedBlockingQueue<>();
 
     public Tower(Airport airport, Queue<Plane> queue) {
         this.airport = airport;
@@ -17,10 +17,6 @@ public class Tower implements Runnable {
         threadName = Thread.currentThread().getName();
 
         System.out.println(threadName + "Tower has started running.");
-    }
-
-    public void refuel(Plane plane) {
-        airport.truck.refuel(plane);
     }
 
     public void land(Plane plane) {
@@ -47,6 +43,15 @@ public class Tower implements Runnable {
         }
 
         System.out.println(threadName + "A gate and runway is free. Plane " + plane.id + " landing request approved. Please coast to gate " + airport.gate.availablePermits());
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        plane.readyToRefuel.set(true);
+        System.out.println(threadName + "Plane " + plane.id + " has docked at assigned gate.");
         airport.runway.release();
     }
 
