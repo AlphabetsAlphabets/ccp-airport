@@ -32,16 +32,24 @@ public class App {
         truckThread.start();
 
         Airport airport = new Airport();
-        Tower tower = new Tower(airport);
+        
+        ATCManager atcManager = new ATCManager(planeQueue);
+        Tower tower = new Tower(airport, planeQueue, atcManager);
         Thread towerThread = new Thread(tower);
 
         towerThread.start();
 
+
         int numPlanes = 4;
         generatePlanes(numPlanes, tower, planeQueue);
 
+        atcManager.tower = tower;
+        Thread statsThread = new Thread(atcManager);
+        statsThread.start();
+
         towerThread.join();
         truckThread.join();
+        statsThread.join();
 
         System.out.println("Finished");
     }

@@ -3,7 +3,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Plane implements Runnable {
     public int id;
-    private Tower tower;
+    public Tower tower;
+
     public int passengers;
     public AtomicBoolean readyToRefuel = new AtomicBoolean(false);
 

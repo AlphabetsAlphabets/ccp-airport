@@ -1,10 +1,16 @@
+import java.util.concurrent.BlockingQueue;
+
 public class Tower implements Runnable {
     private String threadName;
+    private BlockingQueue<Plane> queue;
 
     public Airport airport;
+    public ATCManager atcManager;
 
-    public Tower(Airport airport) {
+    public Tower(Airport airport, BlockingQueue<Plane> queue, ATCManager atcManager) {
         this.airport = airport;
+        this.queue = queue;
+        this.atcManager = atcManager;
     }
 
     public void run() {
@@ -15,6 +21,7 @@ public class Tower implements Runnable {
     }
 
     public void land(Plane plane) {
+        long waitTimeStart = System.currentTimeMillis();
         System.out.println(threadName + " Plane " + plane.id + " is requesting to land.");
 
         while (!airport.gate.tryAcquire()) {
@@ -36,6 +43,9 @@ public class Tower implements Runnable {
                 e.printStackTrace();
             }
         }
+
+        long totalWaitTime = System.currentTimeMillis() - waitTimeStart;
+        atcManager.waitTimes.add(totalWaitTime);
 
         System.out.println(threadName + "A gate and runway is free. Plane " + plane.id + " landing request approved. Please coast to gate " + (airport.gate.availablePermits() + 1));
         try {

@@ -11,9 +11,12 @@ public class Passenger implements Runnable {
     }
 
     public void run() {
+        int totalPassengers = 0;
         Random random = new Random();
         Thread.currentThread().setName("Passenger Thread " + plane.id + " - ");
         String threadName = Thread.currentThread().getName();
+
+        totalPassengers += max;
 
         System.out.println(threadName + "" + max + " passengers are disembarking from Plane " + plane.id);
         for (; max != 0; max--) {
@@ -25,7 +28,9 @@ public class Passenger implements Runnable {
             }
         }
 
+
         int newPassengers = random.nextInt(20, 51);
+        totalPassengers += newPassengers;
         plane.passengers = newPassengers;
 
         for (int i = 1; i != newPassengers; i++) {
@@ -36,7 +41,9 @@ public class Passenger implements Runnable {
                 e.printStackTrace();
             }
         }
-        
+
+        plane.tower.atcManager.passengersServed = totalPassengers;
+
         System.out.println(threadName + "All passengers have disembarked. Embarking " + newPassengers + " new passengers into Plane " + plane.id);
     }
 }
