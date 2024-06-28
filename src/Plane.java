@@ -39,13 +39,16 @@ public class Plane implements Runnable {
     private void postLandingTasks() {
         Thread passThread = handlePassengers();
         Thread crewThread = cleanUp();
+        Thread refillSupplyThread = refillSupply();
 
         passThread.start();
         crewThread.start();
+        refillSupplyThread.start();
 
         try {
             passThread.join();
             crewThread.join();
+            refillSupplyThread.join();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
@@ -62,6 +65,13 @@ public class Plane implements Runnable {
 
             System.out.println(threadName + "Plane " + id + " is currently being serviced by the fuel truck.");
         }
+    }
+
+    private Thread refillSupply() {
+        RefillSupplies refill = new RefillSupplies(id);
+        Thread refilThread = new Thread(refill);
+
+        return refilThread;
     }
 
     private Thread cleanUp() {
