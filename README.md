@@ -1,3 +1,4 @@
+# References
 Learned how to use `Condition` class from https://www.byteslounge.com/tutorials/lock-conditions-in-java
 Learned how to use `ReentrantLock` from https://jakob.jenkov.com/tutorials/java-util-concurrent/lock.html
 
@@ -5,7 +6,6 @@ Learned about the BlockingQueue from https://www.baeldung.com/java-blocking-queu
 
 This thread serves the planes. Once the planes have finished their tasks. The thread will end. Which is why it is set as a daemon thread. Source: https://www.baeldung.com/java-daemon-thread
 
-# Unused
 Semaphore general definition - https://www.baeldung.com/cs/semaphore
 Semaphore in Java - https://www.baeldung.com/java-semaphore
 
@@ -19,7 +19,8 @@ can_land.signalAll(); // tells planes waiting to land that they can land as at t
                      // a gate and a runway is free.
 ```
 
----
+# private void postLandingTasks()
+The function will call and create a bunch of other threads to perform clean up, passenger disembarking/embarking and refilling supplies after the plane lands.
 
-1. Look into whether an ATC is required.
-2. Ask ChatGPT h
+# Fuel Truck
+Will keep running and checking if a plane is ready to be refueled. Otherwise it does nothing.
