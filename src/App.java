@@ -40,7 +40,8 @@ public class App {
         refuThread.start();
         towerThread.start();
 
-        generatePlanes(3, tower);
+        int numPlanes = 4;
+        generatePlanes(numPlanes, tower);
 
         towerThread.join();
 
