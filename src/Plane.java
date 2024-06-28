@@ -35,20 +35,33 @@ public class Plane implements Runnable {
     }
 
     private void postLandingTasks() {
-        handlePassengers();
-        tower.refuel(this); // This is probably wrong, this runs concurrently.
-    }
-
-    private void handlePassengers() {
-        Passenger passenger = new Passenger(passengers, this);
-        Thread passThread = new Thread(passenger);
+        Thread passThread = handlePassengers();
+        Thread crewThread = cleanUp();
 
         passThread.start();
+        crewThread.start();
+
         try {
             passThread.join();
+            crewThread.join();
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+        // tower.refuel(this); // This is probably wrong, this runs concurrently.
+    }
+
+    private Thread cleanUp() {
+        CleanUpCrew crew = new CleanUpCrew(id);
+        Thread crewThread = new Thread(crew);
+
+        return crewThread;
+    }
+
+    private Thread handlePassengers() {
+        Passenger passenger = new Passenger(passengers, this);
+        Thread passThread = new Thread(passenger);
+
+        return passThread;
     }
 }
