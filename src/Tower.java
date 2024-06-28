@@ -1,19 +1,11 @@
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class Tower implements Runnable {
     private String threadName;
 
     public Airport airport;
     private Queue<Plane> queue = new LinkedList<>();
-
-    private Semaphore runway = new Semaphore(1);
-
-    private Lock gateLock = new ReentrantLock();
 
     public Tower(Airport airport, Queue<Plane> queue) {
         this.airport = airport;
@@ -33,8 +25,18 @@ public class Tower implements Runnable {
 
     public void land(Plane plane) {
         System.out.println(threadName + " Plane " + plane.id + " is requesting to land.");
+
+        while (!airport.gate.tryAcquire()) {
+            System.out.println(threadName + "Plane " + plane.id + " No available gates. Please wait.");
+            try {
+                Thread.sleep(1000); // Simulate pilot waiting a few minutes before requesting for landing
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
         
-        while (!runway.tryAcquire()) {
+        while (!airport.runway.tryAcquire()) {
             System.out.println(threadName + "Plane " + plane.id + " request to land denied. Runway is not available.");
             try {
                 Thread.sleep(1000); // Simulate pilot waiting a few minutes before requesting for landing.
@@ -44,28 +46,15 @@ public class Tower implements Runnable {
             }
         }
 
-        System.out.println(threadName + "Plane " + plane.id + " landing request approved. Please coast to runway.");
-            
-        try {
-            gateLock.lock();
-            for (var gate : airport.gates) {
-                if (gate.is_occupied()) continue;
-
-                System.out.println(threadName + " Plane " + plane.id + " is cleared for landing. Please coast to Gate " + gate.get_id());
-                gate.occupy(plane.id);
-
-                runway.release();
-                break;
-            }
-        } finally {
-            gateLock.unlock();
-        }
+        System.out.println(threadName + "A gate and runway is free. Plane " + plane.id + " landing request approved. Please coast to gate " + airport.gate.availablePermits());
+        airport.runway.release();
     }
 
     public void depart(Plane plane) {
         System.out.println(threadName + "Plane " + plane.id + " is requesting to depart.");
+
        
-        while (!runway.tryAcquire()) {
+        while (!airport.runway.tryAcquire()) {
             System.out.println(threadName + "Depature for Plane " + plane.id + " denied. Runway is not available.");
             try {
                 Thread.sleep(1000);
@@ -75,19 +64,10 @@ public class Tower implements Runnable {
             }
         }
 
-        try {
-            gateLock.lock();
-            for (var gate : airport.gates) {
-                if (gate.occupiedBy(plane.id)) {    
-                    gate.free();
-                    break;
-                }
-            }
-
-            System.out.println(threadName + "Runway is now free. Plane " + plane.id + " is cleared for depature.");
-            runway.release();
-        } finally {
-            gateLock.unlock();
-        }
+        System.out.println(threadName + "Depature for Plane " + plane.id + " is approved. Please coast to runway.");
+        airport.gate.release();
+        System.out.println(threadName + "A gate " + airport.gate.availablePermits() + " is now free.");
+        airport.runway.release();
+        System.out.println(threadName + "Plane " + plane.id + " has taken off successfully.");
     }
 }

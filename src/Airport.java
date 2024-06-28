@@ -1,15 +1,12 @@
-import java.util.ArrayList;
+import java.util.concurrent.Semaphore;
 
 public class Airport {
-    public ArrayList<Gate> gates = new ArrayList<>();
-    public Runway runway = new Runway();
+    public Semaphore runway = new Semaphore(1);
+    public Semaphore gate = new Semaphore(3);
+
     public RefuelTruck truck;
 
     public Airport() {
-        gates.add(new Gate(1));
-        gates.add(new Gate(2));
-        gates.add(new Gate(3));
-
         truck = new RefuelTruck();
     }
 }

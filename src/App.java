@@ -1,43 +1,46 @@
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+
 public class App {
+    private static void generatePlanes(int numPlanes, Tower tower) {
+        ArrayList<Thread> planes = new ArrayList<>();
+
+        for (int i = 0; i < numPlanes; i++) {
+            Plane plane = new Plane(i + 1, tower);
+            Thread t = new Thread(plane);
+            planes.add(t);
+            t.start();
+        }
+
+        for (var thread: planes) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         BlockingQueue<Plane> planeQueue = new LinkedBlockingQueue<>();
 
         RefuelTruck truck = new RefuelTruck();
 
-
         Airport airport = new Airport();
         Tower tower = new Tower(airport, planeQueue);
-
-        Plane p1 = new Plane(1, tower);
-        Plane p2 = new Plane(2, tower);
-        Plane p3 = new Plane(3, tower);
-        Plane p4 = new Plane(4, tower);
-        
-        planeQueue.add(p1);
-        planeQueue.add(p2);
-        // planeQueue.add(p3);
-        // planeQueue.add(p4);
 
         Thread refuThread = new Thread(truck);
         Thread towerThread = new Thread(tower);        
 
-        Thread p1Thread = new Thread(p1);
-        Thread p2Thread = new Thread(p2);
-        Thread p3Thread = new Thread(p3);
-        Thread p4Thread = new Thread(p4);
-
         refuThread.start();
-
         towerThread.start();
-        p1Thread.start();
-        p2Thread.start();
-        p3Thread.start();
-        p4Thread.start();
+
+        generatePlanes(3, tower);
 
         towerThread.join();
 
