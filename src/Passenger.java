@@ -15,24 +15,28 @@ public class Passenger implements Runnable {
         Thread.currentThread().setName("Passenger Thread " + plane.id + " - ");
         String threadName = Thread.currentThread().getName();
 
-        try {
-            Thread.sleep(random.nextInt(1000, 5000));
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
         System.out.println(threadName + "" + max + " passengers are disembarking from Plane " + plane.id);
+        for (; max != 0; max--) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
 
         int newPassengers = random.nextInt(20, 51);
         plane.passengers = newPassengers;
 
-        try {
-            Thread.sleep(random.nextInt(1000, 5000));
-        } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        for (int i = 1; i != newPassengers; i++) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
+        
         System.out.println(threadName + "All passengers have disembarked. Embarking " + newPassengers + " new passengers into Plane " + plane.id);
-    }   
+    }
 }
