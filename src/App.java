@@ -28,12 +28,16 @@ public class App {
 
         Thread p1Thread = new Thread(p1);
         Thread p2Thread = new Thread(p2);
+        Thread p3Thread = new Thread(p3);
+        Thread p4Thread = new Thread(p4);
 
         refuThread.start();
 
         towerThread.start();
         p1Thread.start();
         p2Thread.start();
+        p3Thread.start();
+        p4Thread.start();
 
         towerThread.join();
 
