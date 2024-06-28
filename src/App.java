@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
 public class App {
     private static void generatePlanes(int numPlanes, Tower tower, BlockingQueue<Plane> queue) {
         ArrayList<Thread> planes = new ArrayList<>();
@@ -33,7 +32,7 @@ public class App {
         truckThread.start();
 
         Airport airport = new Airport();
-        Tower tower = new Tower(airport, planeQueue);
+        Tower tower = new Tower(airport);
         Thread towerThread = new Thread(tower);
 
         towerThread.start();
