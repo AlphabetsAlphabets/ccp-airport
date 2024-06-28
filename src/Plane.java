@@ -52,7 +52,16 @@ public class Plane implements Runnable {
         }
         
         // Wait for the plane to be done refuelling.
-        while(readyToRefuel.get() == true) {}
+        while(readyToRefuel.get() == true) {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+            System.out.println(threadName + "Plane " + id + " is currently being serviced by the fuel truck.");
+        }
     }
 
     private Thread cleanUp() {
